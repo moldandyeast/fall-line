@@ -35,6 +35,7 @@ html.credits #app{top:var(--credits-h,0px)}
   --display:"Archivo","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
   --g:clamp(16px,2.2vw,28px);
+  --tw:min(340px,92vw);  /* physics drawer */
   color-scheme:light;
 }
 #app.inv{--paper:var(--k0,#111112);--ink:var(--p0,#F0F0F1)}
@@ -131,6 +132,25 @@ table.sc{border-collapse:collapse;font:400 12.5px/1.4 var(--mono);width:100%}
 table.sc td{border-top:1px solid var(--rule);padding:5px 8px 5px 0;vertical-align:top}
 table.sc td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 
+/* ---------- physics tweaker ---------- */
+/* A drawer, not an overlay: the game keeps running behind it, because you cannot feel gravity while paused. */
+#tweak{position:absolute;right:0;top:0;bottom:0;width:var(--tw);background:var(--paper);color:var(--ink);border-left:2px solid var(--rule);overflow-y:auto;box-sizing:border-box;pointer-events:auto;padding:calc(var(--g) + env(safe-area-inset-top,0px)) var(--g) calc(var(--g) + env(safe-area-inset-bottom,0px))}
+#tweak[hidden]{display:none!important}
+.thead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--rule);padding-bottom:10px;margin-bottom:4px}
+.thead h2{margin:0;font:900 30px/.82 var(--display);font-stretch:62%;font-variation-settings:"wdth" 62;text-transform:uppercase;letter-spacing:-.01em}
+.thead .btn{padding:7px 10px;font-size:11px}
+.tgrp{font:700 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:6px;margin:18px 0 2px;color:var(--grey)}
+.tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 10px;align-items:baseline;padding:9px 0 3px}
+.tr label{font:400 12.5px/1.2 var(--display)}
+.tr output{font:500 10.5px/1.2 var(--mono);letter-spacing:.04em;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.tr.off label{font-weight:700}
+.tr.off output{color:var(--grey)}
+.tr input{grid-column:1/-1;width:100%;margin:5px 0 0;height:14px;accent-color:var(--grey);cursor:pointer}
+.tfoot{display:flex;gap:8px;flex-wrap:wrap;border-top:2px solid var(--rule);margin-top:20px;padding-top:14px}
+#tDirty{font:400 10.5px/1.5 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);margin:10px 0 0}
+#tDirty[hidden]{display:none!important}
+@media (min-width:761px){#app.tweaking #hud{padding-right:calc(var(--tw) + var(--g))}}
+
 /* ---------- touch ---------- */
 #touch{position:absolute;inset:0;pointer-events:none}
 #touch[hidden]{display:none!important}
@@ -171,7 +191,7 @@ table.sc td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-
         <div class="mrow"><div class="letters" id="letters"></div><span class="lbl" id="mstate">Adrenaline</span></div>
         <div class="mbar" id="mbar"><i></i></div>
       </div>
-      <div class="hint">← → carve / spin · ↑ ↓ tuck / flip · Space jump<br>U I J K grab · Shift boost · Shift + grab über · C colour · Esc pause</div>
+      <div class="hint">← → carve / spin · ↑ ↓ tuck / flip · Space jump<br>U I J K grab · Shift boost · Shift + grab über · C colour · T feel · Esc pause</div>
     </div>
   </div>
 
@@ -195,9 +215,9 @@ table.sc td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-
         <dt>Space</dt><dd>Hold to crouch, release to jump. Jump off rails.</dd>
         <dt>U I J K</dt><dd>Grabs. Two at once make ten grabs.</dd>
         <dt>Shift</dt><dd>Boost. With a full meter, Shift + grab in the air is an über trick.</dd>
-        <dt>M · Esc · N · C</dt><dd>Music on or off · pause · design notes · colour scheme</dd>
+        <dt>M · Esc · N · C · T</dt><dd>Music on or off · pause · design notes · colour scheme · tweak the feel</dd>
       </dl>
-      <div class="row"><button class="btn primary" id="bStart">Drop in</button><button class="btn" id="bNotes">Design notes</button><button class="btn" id="bPal">Colour: Riso</button></div>
+      <div class="row"><button class="btn primary" id="bStart">Drop in</button><button class="btn" id="bNotes">Design notes</button><button class="btn" id="bPal">Colour: Riso</button><button class="btn" id="bTweak">Feel</button></div>
       <p class="fine" id="tFine">Sound starts when you drop in. Gamepad and touch work too.</p>
     </div>
     <div class="disc"></div>
@@ -206,14 +226,14 @@ table.sc td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-
   <section id="pause" class="ov" hidden>
     <div class="panel">
       <h2>Paused</h2>
-      <div class="row"><button class="btn primary" id="bResume">Resume</button><button class="btn" id="bRestart">New mountain</button><button class="btn" id="bNotes2">Notes</button><button class="btn" id="bPal2">Colour: Riso</button></div>
+      <div class="row"><button class="btn primary" id="bResume">Resume</button><button class="btn" id="bRestart">New mountain</button><button class="btn" id="bNotes2">Notes</button><button class="btn" id="bPal2">Colour: Riso</button><button class="btn" id="bTweak2">Feel</button></div>
       <p class="fine" id="pMusic">M toggles the music</p>
     </div>
   </section>
 
   <section id="notes" class="ov" hidden>
     <div class="panel">
-      <div class="nhead"><h2>Design notes</h2><button class="btn" id="bNotesClose">Close</button></div>
+      <div class="nhead"><h2>Design notes</h2><button class="btn" id="bTweak3">Feel</button><button class="btn" id="bNotesClose">Close</button></div>
 
       <div class="nsec"><h3><span>01</span>Research</h3><div class="nbody">
         <div><h4>What SSX does</h4><ul>
@@ -309,6 +329,13 @@ legs and arms: two-bone IK, law of cosines</pre></div>
         </ul></div>
       </div></div>
     </div>
+  </section>
+  <section id="tweak" hidden>
+    <div class="thead"><h2>Feel</h2><button class="btn" id="bTweakClose">Close</button></div>
+    <p class="fine">The ride, live. Arrow keys still carve.</p>
+    <div id="tbody"></div>
+    <p id="tDirty" hidden>Tuned run — best score is not recorded.</p>
+    <div class="tfoot"><button class="btn" id="bTweakCopy">Copy values</button><button class="btn" id="bTweakReset">Reset all</button></div>
   </section>
   <div id="noGL" hidden>This game needs WebGL 2, which this browser or device has turned off.</div>
 </div>
@@ -816,7 +843,34 @@ function meshBoard() { // board-local: X length 1.56, Z width 0.29, Y up; white 
 // =====================================================================
 // game state
 // =====================================================================
-const GRAV = 13, DT = 1 / 120, UP = [0, 1, 0];
+const DT = 1 / 120, UP = [0, 1, 0];
+// ---------- game feel ----------
+// Every number the ride is made of. The physics reads FEEL live each frame, so the
+// T panel changes the ride instantly, mid-air included. FEEL_DEF holds the defaults,
+// the safe range a slider may travel, and the label the panel prints.
+const FEEL_DEF = {
+  grav:      {v: 13,     min: 4,     max: 26,    step: 0.1,    grp: 'Speed',   label: 'Gravity',             unit: 'm/s\u00B2'},
+  drag:      {v: 0.55,   min: 0,     max: 2,     step: 0.01,   grp: 'Speed',   label: 'Drag, constant',      unit: 'm/s\u00B2'},
+  dragSq:    {v: 0.0042, min: 0.001, max: 0.012, step: 0.0001, grp: 'Speed',   label: 'Drag, with speed',    unit: '\u00B7v\u00B2'},
+  tuck:      {v: 0.0016, min: 0,     max: 0.004, step: 0.0001, grp: 'Speed',   label: 'Tuck bonus',          unit: '\u00B7v\u00B2'},
+  boost:     {v: 11,     min: 0,     max: 30,    step: 0.5,    grp: 'Speed',   label: 'Boost power',         unit: 'm/s\u00B2'},
+  boostTop:  {v: 44,     min: 20,    max: 90,    step: 1,      grp: 'Speed',   label: 'Boost top speed',     unit: 'm/s'},
+  grip:      {v: 7,      min: 0,     max: 20,    step: 0.1,    grp: 'Carve',   label: 'Edge grip',           unit: '1/s'},
+  keep:      {v: 0.9,    min: 0.5,   max: 1,     step: 0.005,  grp: 'Carve',   label: 'Speed kept in turn',  unit: ''},
+  turnSlow:  {v: 2.5,    min: 0.5,   max: 5,     step: 0.05,   grp: 'Carve',   label: 'Turn rate, slow',     unit: 'rad/s'},
+  turnFast:  {v: 1.55,   min: 0.2,   max: 5,     step: 0.05,   grp: 'Carve',   label: 'Turn rate, fast',     unit: 'rad/s'},
+  pop:       {v: 4.2,    min: 0,     max: 12,    step: 0.1,    grp: 'Air',     label: 'Ollie pop',           unit: 'm/s'},
+  popCharge: {v: 3.6,    min: 0,     max: 12,    step: 0.1,    grp: 'Air',     label: 'Pop from full charge',unit: 'm/s'},
+  charge:    {v: 0.45,   min: 0.1,   max: 1.5,   step: 0.01,   grp: 'Air',     label: 'Charge time',         unit: 's'},
+  sticky:    {v: 1.6,    min: 1,     max: 4,     step: 0.05,   grp: 'Air',     label: 'Stickiness',          unit: '\u00B7g'},
+  spin:      {v: 7.2,    min: 1,     max: 16,    step: 0.1,    grp: 'Air',     label: 'Spin rate',           unit: 'rad/s'},
+  flip:      {v: 6,      min: 1,     max: 16,    step: 0.1,    grp: 'Air',     label: 'Flip rate',           unit: 'rad/s'},
+  landUp:    {v: 0.28,   min: 0,     max: 0.9,   step: 0.01,   grp: 'Landing', label: 'Upright tolerance',   unit: ''},
+  landAli:   {v: 0.36,   min: 0,     max: 0.9,   step: 0.01,   grp: 'Landing', label: 'Alignment tolerance', unit: ''},
+  cleanUp:   {v: 0.65,   min: 0.2,   max: 1,     step: 0.01,   grp: 'Landing', label: 'Clean, upright',      unit: ''},
+  cleanAli:  {v: 0.75,   min: 0.2,   max: 1,     step: 0.01,   grp: 'Landing', label: 'Clean, alignment',    unit: ''}
+};
+const FEEL = {}; for (const _k in FEEL_DEF) FEEL[_k] = FEEL_DEF[_k].v;
 const LETTERS = 'GROTESK';
 const GRABS = {
   1: {name: 'Indy', R: [-0.05, 0.03, 0.16]}, 2: {name: 'Mute', L: [0.08, 0.03, 0.16]}, 4: {name: 'Method', L: [0.04, 0.03, -0.16], tw: [-0.7, 0.2]},
@@ -888,41 +942,41 @@ function stepRider(dt) {
 
 // leave the ground when the snow falls away faster than (sticky) gravity can follow it
 function liftOff(dt) {
-  const gs = 1.6 * GRAV, px = R.p[0] + R.v[0] * dt, pz = R.p[2] + R.v[2] * dt;
+  const gs = FEEL.sticky * FEEL.grav, px = R.p[0] + R.v[0] * dt, pz = R.p[2] + R.v[2] * dt;
   return R.p[1] + R.v[1] * dt - 0.5 * gs * dt * dt > height(px, pz) + 0.002;
 }
 function groundStep(dt, jumpReleased) {
   const n = normalAt(R.p[0], R.p[2]); R.n = n;
   if (liftOff(dt)) { takeoff(false); return; }
   const f = norm(sub(fwdOf(R.yaw), mul(n, dot(fwdOf(R.yaw), n))), [0, 0, 1]), s = cross(n, f);
-  const g = [0, -GRAV, 0];
+  const g = [0, -FEEL.grav, 0];
   R.v = madd(R.v, sub(g, mul(n, dot(g, n))), dt);
   R.v = sub(R.v, mul(n, dot(R.v, n)));
   let vf = dot(R.v, f), vs = dot(R.v, s);
   const sp0 = Math.hypot(vf, vs);
   const brake = inp.y < -0.2 ? -inp.y : 0, tuck = inp.y > 0.2 ? inp.y : 0;
   // edge grip turns sideways motion into forward motion, keeping most of the speed
-  const nvs = vs * Math.exp(-(7 - 3 * brake) * dt), sp1 = Math.hypot(vf, nvs), tgt = lerp(sp1, sp0, 0.9 - 0.55 * brake);
+  const nvs = vs * Math.exp(-(FEEL.grip - 3 * brake) * dt), sp1 = Math.hypot(vf, nvs), tgt = lerp(sp1, sp0, FEEL.keep - 0.55 * brake);
   if (sp1 > 1e-5) { const k = tgt / sp1; vf *= k; vs = nvs * k; }
   let sp = Math.hypot(vf, vs);
-  let dec = 0.55 + (0.0042 - 0.0016 * tuck) * sp * sp + brake * 9;
+  let dec = FEEL.drag + (FEEL.dragSq - FEEL.tuck * tuck) * sp * sp + brake * 9;
   R.boosting = inp.boost && (G.meter > 0.01 || infinite()) && sp > 1;
   let acc = 0;
-  if (R.boosting) { acc = 11 * Math.max(0, 1 - sp / 44); if (!infinite()) G.meter = Math.max(0, G.meter - 0.2 * dt); }
+  if (R.boosting) { acc = FEEL.boost * Math.max(0, 1 - sp / FEEL.boostTop); if (!infinite()) G.meter = Math.max(0, G.meter - 0.2 * dt); }
   const nsp = Math.max(0, sp - dec * dt) + acc * dt;
   if (sp > 1e-4) { const k = nsp / sp; vf *= k; vs *= k; } else if (acc > 0) vf = acc * dt;
   R.v = add(mul(f, vf), mul(s, vs));
   R.fakie = vf < -0.5 ? true : vf > 0.5 ? false : R.fakie;
-  const turn = inp.x * lerp(2.5, 1.55, clamp(sp / 30, 0, 1));
+  const turn = inp.x * lerp(FEEL.turnSlow, FEEL.turnFast, clamp(sp / 30, 0, 1));
   R.yaw -= turn * dt;
   // crouch and ollie
-  R.charge = inp.jump ? Math.min(1, R.charge + dt / 0.45) : R.charge;
+  R.charge = inp.jump ? Math.min(1, R.charge + dt / FEEL.charge) : R.charge;
   R.crouch = lerp(R.crouch, inp.jump ? 0.35 + 0.65 * R.charge : tuck * 0.55 + brake * 0.2, 1 - Math.exp(-dt * 12));
   const t = norm(horiz(R.v), fwdOf(R.yaw)), right = cross(t, UP), Zw = qRot(R.q, [0, 0, 1]);
   R.lean = lerp(R.lean, dot(mul(right, inp.x), Zw) * 0.5 * sstep(2, 14, sp) - 0.15 * brake * (R.fakie ? -1 : 1) * 0, 1 - Math.exp(-dt * 8));
   R.q = frameQ(fwdOf(R.yaw), n);
   if (jumpReleased) {
-    const pop = 4.2 + 3.6 * R.charge;
+    const pop = FEEL.pop + FEEL.popCharge * R.charge;
     R.v = madd(R.v, n, pop); R.charge = 0; takeoff(true); Music.pop();
   }
   // board noise and spray
@@ -954,17 +1008,17 @@ function takeoff(ollie) {
 }
 
 function airStep(dt, grabEdge) {
-  const A = R.air; A.t += dt; R.v[1] -= GRAV * dt;
+  const A = R.air; A.t += dt; R.v[1] -= FEEL.grav * dt;
   const sp = vlen(R.v); R.v = mul(R.v, 1 - 0.0006 * sp * dt);
   A.peak = Math.max(A.peak, R.p[1]);
   // spin (around world up) with auto-completion to the nearest 180
   const locked = A.uber && A.uber.id === 2;
-  if (Math.abs(inp.x) > 0.3) { A.spinGoal = null; A.spinV += (-Math.sign(inp.x) * 7.2 - A.spinV) * Math.min(1, dt * 9); A.tricked = true; }
+  if (Math.abs(inp.x) > 0.3) { A.spinGoal = null; A.spinV += (-Math.sign(inp.x) * FEEL.spin - A.spinV) * Math.min(1, dt * 9); A.tricked = true; }
   else {
     if (A.spinGoal === null) { const k = A.spin / Math.PI, fr = k - Math.floor(k); A.spinGoal = (A.spinV > 0.5 && fr > 0.25 ? Math.ceil(k) : A.spinV < -0.5 && fr < 0.75 ? Math.floor(k) : Math.round(k)) * Math.PI; }
     A.spinV += (clamp((A.spinGoal - A.spin) * 7, -7, 7) - A.spinV) * Math.min(1, dt * 10);
   }
-  if (!locked && Math.abs(inp.y) > 0.3 && A.t > 0.08) { A.flipGoal = null; A.flipV += (Math.sign(inp.y) * 6 - A.flipV) * Math.min(1, dt * 8); A.tricked = true; }
+  if (!locked && Math.abs(inp.y) > 0.3 && A.t > 0.08) { A.flipGoal = null; A.flipV += (Math.sign(inp.y) * FEEL.flip - A.flipV) * Math.min(1, dt * 8); A.tricked = true; }
   else {
     if (A.flipGoal === null) { const k = A.flip / TAU, fr = k - Math.floor(k); A.flipGoal = (A.flipV > 0.5 && fr > 0.22 ? Math.ceil(k) : A.flipV < -0.5 && fr < 0.78 ? Math.floor(k) : Math.round(k)) * TAU; }
     A.flipV += (clamp((A.flipGoal - A.flip) * 6, -6, 6) - A.flipV) * Math.min(1, dt * 9);
@@ -1006,8 +1060,8 @@ function land(n, impact) {
   if (A.t < 0.3 && !A.tricked) { R.yaw = Math.atan2(Xp[0], Xp[2]); R.q = frameQ(Xp, n); return; }
   const unfinished = A.uber && A.uber.t < A.uber.dur * 0.75;
   if (A.uber && !unfinished) { A.ubers.push(A.uber); A.uber = null; }
-  if (up < 0.28 || (sp > 4 && Math.abs(ali) < 0.36) || unfinished) { doBail(unfinished ? 'Über not finished' : up < 0.28 ? 'Landed upside down' : 'Landed sideways'); return; }
-  const sketchy = up < 0.65 || Math.abs(ali) < 0.75;
+  if (up < FEEL.landUp || (sp > 4 && Math.abs(ali) < FEEL.landAli) || unfinished) { doBail(unfinished ? 'Über not finished' : up < FEEL.landUp ? 'Landed upside down' : 'Landed sideways'); return; }
+  const sketchy = up < FEEL.cleanUp || Math.abs(ali) < FEEL.cleanAli;
   if (sketchy && sp > 4) { const d = mul(Xp, Math.sign(ali) || 1); R.v = mul(d, Math.max(0, dot(R.v, d)) * 0.8); }
   R.yaw = Math.atan2(Xp[0], Xp[2]); R.fakie = ali < 0; R.q = frameQ(Xp, n);
   // score it
@@ -1064,7 +1118,7 @@ function bankCombo() {
   const C = G.combo; if (!C.n) return;
   const total = Math.round(C.sum * Math.min(10, C.n));
   G.score += total; G.bestCombo = Math.max(G.bestCombo, total);
-  if (G.score > G.best) { G.best = G.score; try { localStorage.setItem('falllinie-best', String(G.best)); } catch (e) {} }
+  if (G.score > G.best && !feelDirty()) { G.best = G.score; try { localStorage.setItem('falllinie-best', String(G.best)); } catch (e) {} }
   UI.banked(total, C.n);
   G.combo = {n: 0, sum: 0, timer: 0, names: []};
 }
@@ -1095,7 +1149,7 @@ function enterRail(rail, s, along) {
 }
 function railStep(dt, jumpReleased) {
   const g = R.rail, d = g.rail.d;
-  g.v += -GRAV * d[1] * dt; g.v -= Math.sign(g.v) * 0.8 * dt;
+  g.v += -FEEL.grav * d[1] * dt; g.v -= Math.sign(g.v) * 0.8 * dt;
   if (inp.boost && (G.meter > 0.01 || infinite())) { g.v += Math.sign(g.v) * 6 * dt; if (!infinite()) G.meter = Math.max(0, G.meter - 0.2 * dt); }
   g.s += g.v * dt; g.t += dt;
   R.p = madd(g.rail.a, d, g.s); R.v = mul(d, g.v);
@@ -1132,7 +1186,7 @@ function doBail(reason) {
 }
 function bailStep(dt) {
   const B = R.bail; B.t += dt;
-  R.v[1] -= GRAV * dt; R.p = madd(R.p, R.v, dt);
+  R.v[1] -= FEEL.grav * dt; R.p = madd(R.p, R.v, dt);
   const hG = height(R.p[0], R.p[2]);
   if (R.p[1] <= hG) {
     const n = normalAt(R.p[0], R.p[2]); R.p[1] = hG;
@@ -1501,7 +1555,7 @@ const UI = {
     $('score').textContent = fmt(G.score);
     $('speed').textContent = String(Math.round(sp));
     $('dist').textContent = fmt(G.dist) + ' m';
-    $('best').textContent = 'Best ' + fmt(Math.max(G.best, G.score));
+    $('best').textContent = 'Best ' + fmt(feelDirty() ? G.best : Math.max(G.best, G.score)) + (feelDirty() ? ' •' : '');
     $('airL').textContent = 'Air ' + (R.air ? R.air.t.toFixed(1) : '0.0') + ' s';
     $('grade').textContent = 'Grade ' + Math.round(baseSlope(R.p[2]) * 100) + ' %';
     const C = G.combo, cb = $('combo');
@@ -1527,10 +1581,11 @@ addEventListener('keydown', e => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(c)) e.preventDefault();
   if (e.repeat) return;
   K.add(c);
-  if (c === 'Escape' || c === 'KeyP') { if (!$('notes').hidden) showNotes(false); else if (G.mode === 'play') setPause(true); else if (G.mode === 'pause') setPause(false); }
+  if (c === 'Escape' || c === 'KeyP') { if (!$('notes').hidden) showNotes(false); else if (!$('tweak').hidden) showTweak(false); else if (G.mode === 'play') setPause(true); else if (G.mode === 'pause') setPause(false); }
   else if (c === 'KeyM') toggleMute();
   else if (c === 'KeyN') showNotes($('notes').hidden);
   else if (c === 'KeyC') applyPalette(PAL + 1);
+  else if (c === 'KeyT') showTweak($('tweak').hidden);
   else if ((c === 'Enter' || c === 'Space') && G.mode === 'title' && $('notes').hidden) { e.preventDefault(); startGame(); }
 });
 addEventListener('keyup', e => K.delete(e.code));
@@ -1582,7 +1637,7 @@ function autopilot(dt) {
   inp.x = clamp(-err * 2.4, -1, 1); inp.y = 0.3; inp.boost = false; inp.grab = 0; inp.jump = false;
   if (R.mode === 'air') {
     if (!AP.plan) AP.plan = {spin: Math.random() < 0.7 ? (Math.random() < 0.5 ? -1 : 1) : 0, flip: Math.random() < 0.3 ? (Math.random() < 0.5 ? -1 : 1) : 0, grab: [1, 2, 4, 8, 3, 12][Math.floor(Math.random() * 6)]};
-    const agl = R.p[1] - height(R.p[0], R.p[2]), fall = R.v[1] < 0, t = agl > 0 ? (R.v[1] + Math.sqrt(Math.max(0, R.v[1] * R.v[1] + 2 * GRAV * agl))) / GRAV : 0;
+    const agl = R.p[1] - height(R.p[0], R.p[2]), fall = R.v[1] < 0, t = agl > 0 ? (R.v[1] + Math.sqrt(Math.max(0, R.v[1] * R.v[1] + 2 * FEEL.grav * agl))) / FEEL.grav : 0;
     if (R.air.t > 0.15 && t > 0.45) { inp.x = AP.plan.spin; inp.y = AP.plan.flip; if (t > 0.25) inp.grab = AP.plan.grab; }
     else { inp.x = 0; inp.y = 0; }
     if (!fall && R.air.t < 0.2) inp.x = 0;
@@ -1800,10 +1855,65 @@ function setPause(on) {
   if (!on) canvas.focus();
 }
 function showNotes(on) { $('notes').hidden = !on; if (on && G.mode === 'play') setPause(true); }
+
+// =====================================================================
+// physics tweaker: the game feel, live, while you ride
+// =====================================================================
+function feelDirty() { for (const k in FEEL_DEF) if (FEEL[k] !== FEEL_DEF[k].v) return true; return false; }
+function feelFmt(k, v) { const st = String(FEEL_DEF[k].step); return v.toFixed(st.includes('.') ? st.split('.')[1].length : 0); }
+function saveFeel() {
+  const o = {}; for (const k in FEEL_DEF) if (FEEL[k] !== FEEL_DEF[k].v) o[k] = FEEL[k];
+  try { if (Object.keys(o).length) localStorage.setItem('falllinie-feel', JSON.stringify(o)); else localStorage.removeItem('falllinie-feel'); } catch (e) {}
+}
+function loadFeel() {
+  try {
+    const o = JSON.parse(localStorage.getItem('falllinie-feel') || '{}');
+    for (const k in o) { const d = FEEL_DEF[k]; if (d && typeof o[k] === 'number' && isFinite(o[k])) FEEL[k] = clamp(o[k], d.min, d.max); }
+  } catch (e) {}
+}
+const TWROW = {};
+function buildTweak() {
+  const box = $('tbody'); let grp = '';
+  for (const k in FEEL_DEF) {
+    const d = FEEL_DEF[k];
+    if (d.grp !== grp) { grp = d.grp; const h = document.createElement('div'); h.className = 'tgrp'; h.textContent = grp; box.appendChild(h); }
+    const row = document.createElement('div'); row.className = 'tr';
+    const lab = document.createElement('label'), out = document.createElement('output'), sl = document.createElement('input');
+    lab.textContent = d.label;
+    sl.type = 'range'; sl.min = d.min; sl.max = d.max; sl.step = d.step; sl.value = FEEL[k];
+    sl.tabIndex = -1; sl.setAttribute('aria-label', d.label);          // never focusable by tab: the arrow keys belong to the rider
+    sl.addEventListener('input', () => { FEEL[k] = +sl.value; paintRow(k); $('tDirty').hidden = !feelDirty(); saveFeel(); });
+    row.append(lab, out, sl); box.appendChild(row);
+    TWROW[k] = {row, out, sl};
+  }
+}
+function paintRow(k) {
+  const d = FEEL_DEF[k], r = TWROW[k], off = FEEL[k] !== d.v;
+  r.sl.value = FEEL[k];
+  r.out.textContent = feelFmt(k, FEEL[k]) + (d.unit ? ' ' + d.unit : '') + (off ? '  def ' + feelFmt(k, d.v) : '');
+  r.row.classList.toggle('off', off);
+}
+function paintTweak() { for (const k in FEEL_DEF) paintRow(k); $('tDirty').hidden = !feelDirty(); }
+function showTweak(on) { $('tweak').hidden = !on; $('app').classList.toggle('tweaking', on); if (on) paintTweak(); }
+function resetFeel() { for (const k in FEEL_DEF) FEEL[k] = FEEL_DEF[k].v; saveFeel(); paintTweak(); UI.banner('Feel reset', 1.2); }
+function copyFeel() {
+  const o = {}; for (const k in FEEL_DEF) if (FEEL[k] !== FEEL_DEF[k].v) o[k] = FEEL[k];
+  const keys = Object.keys(o);
+  const txt = 'const FEEL = {\n' + (keys.length ? keys.map(k => '  ' + k + ': ' + feelFmt(k, o[k])).join(',\n') : '  // every value is at its default') + '\n};';
+  const ok = () => UI.banner('Values copied', 1.2), no = () => window.prompt('Copy the tuned values', txt);
+  try { navigator.clipboard.writeText(txt).then(ok, no); } catch (e) { no(); }
+}
+// the panel never swallows the controls: the window key handler already cancels the arrows and space
+$('tweak').addEventListener('keydown', e => { if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); });
+loadFeel(); buildTweak();
 function toggleMute() { const m = Music.toggleMute(); $('pMusic').textContent = m ? 'Music off · M turns it on' : 'Music on · M turns it off'; }
 $('bStart').onclick = startGame;
 $('bNotes').onclick = () => showNotes(true); $('bNotes2').onclick = () => showNotes(true); $('bNotesClose').onclick = () => showNotes(false);
 $('bResume').onclick = () => setPause(false);
+$('bTweak').onclick = $('bTweak2').onclick = $('bTweak3').onclick = e => { showTweak(true); e.currentTarget.blur(); };
+$('bTweakClose').onclick = e => { showTweak(false); e.currentTarget.blur(); };
+$('bTweakReset').onclick = e => { resetFeel(); e.currentTarget.blur(); };
+$('bTweakCopy').onclick = e => { copyFeel(); e.currentTarget.blur(); };
 $('bPal').onclick = $('bPal2').onclick = () => applyPalette(PAL + 1);
 $('bRestart').onclick = () => { newRun(true); CAM.eye = null; $('seedL').textContent = 'Seed ' + (SEED >>> 0).toString(16).slice(0, 4).toUpperCase(); setPause(false); };
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.mode === 'play') setPause(true); });
@@ -1921,12 +2031,12 @@ function drawXray() {
   const sp = vlen(R.v);
   arrow(R.p, madd(R.p, R.v, 0.18), K, 2); callout(madd(R.p, R.v, 0.18), `v ${sp.toFixed(1)} m/s`, K);
   if (R.mode === 'ground') { arrow(R.p, madd(R.p, R.n, 1.4), S, 1.5); callout(madd(R.p, R.n, 1.4), 'n = normalize(−∂h/∂x, 1, −∂h/∂z)', S); }
-  arrow(madd(R.p, UP, 2.6), madd(R.p, UP, 1.7), S, 1); callout(madd(R.p, UP, 2.6), `g ${GRAV} m/s²`, S);
+  arrow(madd(R.p, UP, 2.6), madd(R.p, UP, 1.7), S, 1); callout(madd(R.p, UP, 2.6), `g ${FEEL.grav} m/s²`, S);
   // ballistic prediction until it meets the snow
   if (R.mode === 'air' || R.mode === 'ground') {
     let p = R.p.slice(), v = R.v.slice(), t = 0; const arc = [p.slice()];
     if (R.mode === 'ground') { v = madd(v, R.n, 4.2 + 3.6 * R.charge); }
-    for (; t < 5; t += 1 / 30) { v[1] -= GRAV / 30; p = madd(p, v, 1 / 30); arc.push(p.slice()); if (t > 0.05 && p[1] < height(p[0], p[2])) break; }
+    for (; t < 5; t += 1 / 30) { v[1] -= FEEL.grav / 30; p = madd(p, v, 1 / 30); arc.push(p.slice()); if (t > 0.05 && p[1] < height(p[0], p[2])) break; }
     poly(arc, S, 1.4, R.mode === 'air' ? [] : [2, 5]);
     const e = arc[arc.length - 1], q = P(e);
     if (q) { x.strokeStyle = S; x.lineWidth = 2; x.beginPath(); x.moveTo(q[0] - 7, q[1] - 7); x.lineTo(q[0] + 7, q[1] + 7); x.moveTo(q[0] - 7, q[1] + 7); x.lineTo(q[0] + 7, q[1] - 7); x.stroke();
@@ -1948,7 +2058,7 @@ function drawXray() {
 
   // live equations
   const z = R.p[2], Pz = params(z), u = R.p[0] - centerX(z), A = R.air;
-  const gs = 1.6 * GRAV, dt = DT, test = R.p[1] + R.v[1] * dt - 0.5 * gs * dt * dt - height(R.p[0] + R.v[0] * dt, R.p[2] + R.v[2] * dt);
+  const gs = FEEL.sticky * FEEL.grav, dt = DT, test = R.p[1] + R.v[1] * dt - 0.5 * gs * dt * dt - height(R.p[0] + R.v[0] * dt, R.p[2] + R.v[2] * dt);
   const rows = [
     ['y(x,z)', `B(z) + drop(z) + wall + roll + feat = ${R.p[1].toFixed(2)} m`],
     ['s(z)', `0.30 + 0.07 sin(z/190) + 0.04 sin(z/77+1.3) = ${baseSlope(z).toFixed(3)}`],

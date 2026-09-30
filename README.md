@@ -16,7 +16,9 @@ More at https://content.moldandyeast.com · follow [@nilsedison](https://twitter
 
 ## Controls
 
-← → carve, in the air spin · ↑ ↓ tuck and brake, in the air flip · Space hold to crouch, release to jump · U I J K grabs · Shift boost, with a full meter Shift + grab is an über · M music · Esc pause · N design notes · C colour scheme. Gamepad and touch work too.
+← → carve, in the air spin · ↑ ↓ tuck and brake, in the air flip · Space hold to crouch, release to jump · U I J K grabs · Shift boost, with a full meter Shift + grab is an über · M music · Esc pause · N design notes · C colour scheme · T physics. Gamepad and touch work too.
+
+`T` opens the physics tweaker: twenty numbers that make up the ride — gravity, drag, edge grip, pop, spin and flip rates, landing tolerances — adjustable live while you ride, since you cannot feel gravity while paused. **Copy values** prints the changed ones as a pasteable `FEEL` literal. Tuning is kept in `localStorage`; while anything is off its default the run does not record a best score and the HUD marks it.
 
 ## Run locally
 
